@@ -40,7 +40,7 @@ jobs:
       - name: Build and push Docker Image
         uses: docker/build-push-action@v5
         with: 
-          context: ./DenoTaskManagerProject
+          context: .
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/${{ env.PROJECT_NAME }}:latest
