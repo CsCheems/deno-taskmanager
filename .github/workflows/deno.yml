@@ -52,6 +52,19 @@ jobs:
     needs: build-and-push 
     runs-on: ubuntu-latest
     steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.yml to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "docker-compose.yml"
+          target: "{{ env.VPS_PROJECT_DIR }}"
         
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@master 
@@ -72,10 +85,10 @@ jobs:
             echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
             echo "==> Haciendo pull del docker compose..."
-            docker compose pull
+            docker-compose pull
             
             echo "==> Levantando contenedores..."
-            docker compose up -d
+            docker-compose up -d --remove-orphans
 
             echo "==> Despliegue completo."
 
