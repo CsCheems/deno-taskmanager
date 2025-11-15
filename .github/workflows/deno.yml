@@ -18,6 +18,7 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   REGISTRY: ghcr.io
   VPS_PROJECT_DIR: /home/deployer/DenoTaskManager
+  OWNER_LC: cscheems
 
 jobs: 
   build-and-push:
@@ -41,7 +42,9 @@ jobs:
         with: 
           context: ./DenoTaskManagerProject
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.PROJECT_NAME }}:${{ env.IMAGE_TAG }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/${{ env.PROJECT_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/${{ env.PROJECT_NAME }}:${{ env.IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
