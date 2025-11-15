@@ -64,7 +64,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "docker-compose.yml"
-          target: "{{ env.VPS_PROJECT_DIR }}"
+          target: "${{ env.VPS_PROJECT_DIR }}"
         
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@master 
@@ -85,10 +85,10 @@ jobs:
             echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
             echo "==> Haciendo pull del docker compose..."
-            docker-compose pull
+            docker compose pull
             
             echo "==> Levantando contenedores..."
-            docker-compose up -d --remove-orphans
+            docker compose up -d --remove-orphans
 
             echo "==> Despliegue completo."
 
