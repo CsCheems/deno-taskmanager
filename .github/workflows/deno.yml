@@ -17,7 +17,7 @@ env:
   PROJECT_NAME: deno-task-manager
   IMAGE_TAG: ${{ github.sha }}
   REGISTRY: ghcr.io
-  VPS_PROJECT_DIR: /home/deployer/DenoTaskManager
+  VPS_PROJECT_DIR: /home/deployer/deno-taskmanager
   OWNER_LC: cscheems
 
 jobs: 
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout/@v4
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -61,30 +61,22 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            export IMAGE_NAME=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.PROJECT_NAME }}:${{ env.IMAGE_TAG }}
-            export PROJECT_DIR=${{ env.VPS_PROJECT_DIR }}
+            set -euo pipefail
+
+            IMAGE_REPO="${{ env.REGISTRY }}/${{ env.OWNER_LC }}/${{ env.PROJECT_NAME }}"
+            PROJECT_DIR="${{ env.VPS_PROJECT_DIR }}"
+
+            cd "$PROJECT_DIR"
+
+            echo "==> Autenticando GHCR (si es privado)"
+            echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+
+            echo "==> Haciendo pull del docker compose..."
+            docker compose pull
             
-            echo "Iniciando despliegue Blue-Green..."
-           
-            $PROJECT_DIR/scripts/deploy.sh
-            
-            docker image prune -f
-            
-            echo "Despliegue completado."
+            echo "==> Levantando contenedores..."
+            docker compose up -d
 
+            echo "==> Despliegue completo."
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          
+         
