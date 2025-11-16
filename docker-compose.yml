@@ -3,6 +3,8 @@ services:
   blue:
     image: ghcr.io/cscheems/deno-task-manager:latest
     container_name: taskmanager-blue
+    environment:
+      - APP_ENV=BLUE
     ports:
       - "8080:8000"
     restart: always
@@ -15,6 +17,8 @@ services:
   green:
     image: ghcr.io/cscheems/deno-task-manager:latest
     container_name: taskmanager-green
+    environment:
+      - APP_ENV=GREEN
     ports:
       - "8081:8000"
     restart: always
