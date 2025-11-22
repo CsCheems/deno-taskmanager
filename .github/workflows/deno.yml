@@ -97,7 +97,7 @@ jobs:
             SLEEP=3
 
             for attempt in $(seq 1 $ATTEMPTS); do
-              if curl -fs "$HEALTHCHECK_URL" > /dev/null 2>&1; then
+              if curl -fs "${{ env.HEALTHCHECK_URL }}" > /dev/null 2>&1; then
                 echo "==>HEALTCHECK OK!"
 
                 bash switch.sh green
