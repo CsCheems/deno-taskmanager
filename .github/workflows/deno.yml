@@ -19,7 +19,7 @@ env:
   REGISTRY: ghcr.io
   VPS_PROJECT_DIR: /home/deployer/deno-taskmanager
   OWNER_LC: cscheems
-  HEALTHCHECK_URL: "http://167.71.153.2/"
+  HEALTHCHECK_URL: "http://localhost:8080/"
 
 jobs: 
   build-and-push:
