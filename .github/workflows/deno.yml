@@ -19,6 +19,7 @@ env:
   REGISTRY: ghcr.io
   VPS_PROJECT_DIR: /home/deployer/deno-taskmanager
   OWNER_LC: cscheems
+  HEALTHCHECK_URL: "http://167.71.153.2/"
 
 jobs: 
   build-and-push:
@@ -90,6 +91,24 @@ jobs:
             echo "==> Levantando contenedores..."
             docker compose up -d --remove-orphans
 
-            echo "==> Despliegue completo."
+            echo "==> Iniciando Healtcheck..."
+
+            ATTEMPTS=15
+            SLEEP=3
+
+            for attempt in $(seq 1 $ATTEMPTS); do
+              if curl -fs "$HEALTHCHECK_URL" > /dev/null 2>&1; then
+                echo "==>HEALTCHECK OK!"
+
+                bash switch.sh green
+                exit 0
+              fi
+
+              sleep $SLEEP
+            done
+            
+            echo "✖ ERROR: Healthcheck falló, deteniendo despliegue."
+            docker compose logs
+            exit 1
 
          
