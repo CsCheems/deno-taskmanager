@@ -100,7 +100,7 @@ jobs:
               if curl -fs "${{ env.HEALTHCHECK_URL }}" > /dev/null 2>&1; then
                 echo "==>HEALTCHECK OK!"
 
-                bash switch.sh green
+                bash switch.sh
                 exit 0
               fi
 
