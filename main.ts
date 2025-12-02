@@ -2,6 +2,25 @@ import { Hono } from "https://deno.land/x/hono@v4.2.2/mod.ts";
 
 const app = new Hono( );
 
+const taskSumary = {
+  totalTasks: 42,
+  completedTasks: 27,
+  pendingTasks: 15,
+};
+
+const taskStatus = {
+  "To Do": 15,
+  "In Progress": 10,
+  "Completed": 17,
+};
+
+const taskUser = {
+  "Alice": 12,
+  "Bob": 15,
+  "Charlie": 10,
+  "Diana": 5,
+}
+
 const APP_ENV = Deno.env.get("APP_ENV") ?? "UNKNOWN";
 
 app.use("*", async (c, next) => {
@@ -18,6 +37,18 @@ app.get("/version", (c) => {
     environment: APP_ENV,
     port: 8000,
   });
+});
+
+app.get("/tasks/summary", (c) => {
+  return c.json(taskSumary);
+});
+
+app.get("/tasks/status", (c) => {
+  return c.json(taskStatus);
+});
+
+app.get("/tasks/user", (c) => {
+  return c.json(taskUser);
 });
 
 

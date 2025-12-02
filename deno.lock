@@ -38,6 +38,11 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1"
-    ]
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:deno@^2.5.6"
+      ]
+    }
   }
 }
