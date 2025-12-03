@@ -1,4 +1,11 @@
 {
+  "name": "my-deno-project",
+  "version": "1.0.0",
+  "description": "A Deno project managed with npm",
+  "scripts": {
+    "start": "deno run --allow-net --allow-env main.ts",
+    "test": "deno test --allow-net --allow-env"
+  },
   "dependencies": {
     "deno": "^2.5.6"
   }

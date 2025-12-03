@@ -22,7 +22,27 @@ env:
   HEALTHCHECK_URL: "http://localhost:8080/"
 
 jobs: 
+  # --- 1. NUEVO JOB: EJECUTAR PRUEBAS ---
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      # Ejecutamos el comando de test. 
+      # Usamos directamente 'deno test' para no tener que instalar Node/NPM en el runner, 
+      # pero hace lo mismo que tu 'npm test'.
+      - name: Run Tests
+        run: deno test --allow-net --allow-env
+
+  # --- 2. CONSTRUCCIÓN DE IMAGEN ---
   build-and-push:
+    needs: test  # <--- ESTO ES LA CLAVE: Si 'test' falla, esto NO se ejecuta.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -49,11 +69,11 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # --- 3. DESPLIEGUE ---
   deploy:
-    needs: build-and-push 
+    needs: build-and-push # Espera a que la imagen se haya subido correctamente
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -82,7 +102,7 @@ jobs:
 
             cd "$PROJECT_DIR"
 
-            echo "==> Autenticando GHCR (si es privado)"
+            echo "==> Autenticando GHCR"
             echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
             echo "==> Haciendo pull del docker compose..."
@@ -91,24 +111,26 @@ jobs:
             echo "==> Levantando contenedores..."
             docker compose up -d --remove-orphans
 
-            echo "==> Iniciando Healtcheck..."
+            echo "==> Iniciando Healthcheck..."
 
             ATTEMPTS=15
             SLEEP=3
-
+            
+            # Bucle simple para verificar si el servicio responde
             for attempt in $(seq 1 $ATTEMPTS); do
+              # Agregamos -o /dev/null -w "%{http_code}" para ver el código real si falla
               if curl -fs "${{ env.HEALTHCHECK_URL }}" > /dev/null 2>&1; then
-                echo "==>HEALTCHECK OK!"
-
+                echo "==> HEALTHCHECK OK!"
+                
+                # Aquí asumimos que tienes un script switch.sh en el servidor o repo
+                # Si está en el repo, recuerda copiarlo también en el paso SCP anterior
                 bash switch.sh
                 exit 0
               fi
-
+              echo "Intento $attempt fallido... esperando..."
               sleep $SLEEP
             done
             
             echo "✖ ERROR: Healthcheck falló, deteniendo despliegue."
-            docker compose logs
+            docker compose logs --tail=50
             exit 1
-
-         

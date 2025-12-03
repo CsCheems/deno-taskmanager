@@ -1,7 +1,8 @@
 import { Hono } from "https://deno.land/x/hono@v4.2.2/mod.ts";
 
-const app = new Hono( );
+const app = new Hono();
 
+// --- TUS DATOS ---
 const taskSumary = {
   totalTasks: 42,
   completedTasks: 27,
@@ -23,11 +24,13 @@ const taskUser = {
 
 const APP_ENV = Deno.env.get("APP_ENV") ?? "UNKNOWN";
 
+// --- MIDDLEWARES ---
 app.use("*", async (c, next) => {
   console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.url}`);
   await next();
 });
 
+// --- RUTAS ---
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "Task Manager Service is running" });
 });
@@ -52,5 +55,15 @@ app.get("/tasks/user", (c) => {
 });
 
 
-Deno.serve({ port: 8000 }, app.fetch);
-console.log("Server running on http://localhost:8000" );
+// --- CONFIGURACIÓN PARA TESTING Y SERVIDOR ---
+
+// 1. Exportamos la instancia 'app' para poder importarla en 'main_test.ts'
+export default app;
+
+// 2. Usamos 'import.meta.main'. 
+// Esto significa: "Solo inicia el servidor si ejecuto este archivo directamente"
+// Si el archivo es importado por el test, este bloque NO se ejecuta.
+if (import.meta.main) {
+  Deno.serve({ port: 8000 }, app.fetch);
+  console.log("Server running on http://localhost:8000");
+}
