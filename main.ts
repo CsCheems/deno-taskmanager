@@ -32,7 +32,7 @@ app.use("*", async (c, next) => {
 
 // --- RUTAS ---
 app.get("/", (c) => {
-  return c.json({ status: "ok", message: "Taskssss Manager Service is running" });
+  return c.json({ status: "ok", message: "Tasks Manager Service is running" });
 });
 
 app.get("/version", (c) => {
